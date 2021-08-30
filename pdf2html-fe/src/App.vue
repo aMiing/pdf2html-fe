@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <div class="main">
+      <h2>pdf文件一键转换成网页</h2>
       <div class="upload-content">
         <el-upload
           ref="fileUpload"
@@ -19,9 +20,9 @@
           </div>
         </el-upload>
       </div>
-      <div class="progress" v-show="uploadProgress">
+      <div class="progress" v-show="transProgress">
         <span class="fileName">{{ fileName }}</span>
-        <div class="progress-list">
+        <!-- <div class="progress-list">
           <span>上传进度：</span>
           <div class="progress-box">
             <el-progress
@@ -30,7 +31,7 @@
               :percentage="uploadProgress"
             ></el-progress>
           </div>
-        </div>
+        </div> -->
         <div class="progress-list">
           <span>转换进度：</span>
           <div class="progress-box">
@@ -38,6 +39,7 @@
               :text-inside="true"
               :stroke-width="16"
               :percentage="transProgress"
+              :color="statusColor"
             ></el-progress>
           </div>
         </div>
@@ -47,13 +49,13 @@
             :disabled="transProgress < 100"
             @click="openLink"
           >
-            预览html</el-button
+            预览</el-button
           >
           <el-button
             type="success"
             :disabled="transProgress < 100"
             @click="downloadHtml"
-            >下载html</el-button
+            >下载</el-button
           >
         </div>
       </div>
@@ -64,6 +66,7 @@
 
 <script>
 import axios from "./utils/axios";
+const baseUrl = "http://49.235.109.180:4000";
 
 export default {
   name: "App",
@@ -90,10 +93,10 @@ export default {
       this.fileName = name;
       formData.append("file", file.raw);
       formData.append("filename", name);
-      await axios.post("/api/upload/pdf", formData, {
+      await axios.post(baseUrl + "/api/upload/pdf", formData, {
         onUploadProgress(ev) {
           let { loaded, total } = ev;
-          _this.uploadProgress = (loaded / total) * 100;
+          _this.transProgress = (loaded / total) * 10;
         },
       });
       this.doTransform(name);
@@ -103,7 +106,7 @@ export default {
       const formData = new FormData();
       formData.append("name", name);
       axios
-        .post("/api/pdf2html", formData)
+        .post(baseUrl + "/api/pdf2html", formData)
         .then(({ data, msg }) => {
           if (msg === "success") {
             this.simulateProgress(1);
@@ -124,7 +127,7 @@ export default {
         return;
       }
       this.timer = setInterval(() => {
-        this.transProgress += 2;
+        this.transProgress += 1;
         if (this.transProgress >= 90) {
           clearInterval(this.timer);
         }
@@ -142,6 +145,9 @@ export default {
       oa.href = url;
       oa.setAttribute("download", this.transData.name);
       oa.click();
+    },
+    statusColor() {
+      return `rgba(103, 194, 58, ${this.transProgress / 100})`;
     },
   },
 };
