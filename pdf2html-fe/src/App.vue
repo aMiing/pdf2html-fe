@@ -65,8 +65,7 @@
 </template>
 
 <script>
-import axios from "./utils/axios";
-const baseUrl = "http://49.235.109.180:4000";
+import { axios, postPoint } from "./utils";
 
 export default {
   name: "App",
@@ -79,6 +78,9 @@ export default {
       downloadLink: "",
     };
   },
+  mounted() {
+    postPoint();
+  },
   methods: {
     initData() {
       this.uploadProgress = 0;
@@ -86,6 +88,7 @@ export default {
       this.timer = null;
     },
     async uploadRequest(file) {
+      postPoint();
       this.initData();
       const _this = this;
       const formData = new FormData();
@@ -93,12 +96,16 @@ export default {
       this.fileName = name;
       formData.append("file", file.raw);
       formData.append("filename", name);
-      await axios.post(baseUrl + "/api/upload/pdf", formData, {
-        onUploadProgress(ev) {
-          let { loaded, total } = ev;
-          _this.transProgress = (loaded / total) * 10;
-        },
-      });
+      await axios.post(
+        this.GOLBAL.baseUrl || "" + "/api/upload/pdf",
+        formData,
+        {
+          onUploadProgress(ev) {
+            let { loaded, total } = ev;
+            _this.transProgress = (loaded / total) * 10;
+          },
+        }
+      );
       this.doTransform(name);
     },
     doTransform(name) {
@@ -106,7 +113,7 @@ export default {
       const formData = new FormData();
       formData.append("name", name);
       axios
-        .post(baseUrl + "/api/pdf2html", formData)
+        .post(this.GLOBAL.baseUrl || "" + "/api/pdf2html", formData)
         .then(({ data, msg }) => {
           if (msg === "success") {
             this.simulateProgress(1);
