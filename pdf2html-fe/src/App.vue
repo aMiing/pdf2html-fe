@@ -97,7 +97,7 @@ export default {
       formData.append("file", file.raw);
       formData.append("filename", name);
       await axios.post(
-        this.GOLBAL.baseUrl || "" + "/api/upload/pdf",
+        (this.GLOBAL.baseUrl || "") + "/api/upload/pdf",
         formData,
         {
           onUploadProgress(ev) {
@@ -113,7 +113,7 @@ export default {
       const formData = new FormData();
       formData.append("name", name);
       axios
-        .post(this.GLOBAL.baseUrl || "" + "/api/pdf2html", formData)
+        .post((this.GLOBAL.baseUrl || "") + "/api/pdf2html", formData)
         .then(({ data, msg }) => {
           if (msg === "success") {
             this.simulateProgress(1);
