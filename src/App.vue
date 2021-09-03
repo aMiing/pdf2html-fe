@@ -112,6 +112,7 @@ export default {
       this.simulateProgress(0);
       const formData = new FormData();
       formData.append("name", name);
+      location.search === "?mode" && formData.append("mode", "plus");
       axios
         .post((this.GLOBAL.baseUrl || "") + "/api/pdf2html", formData)
         .then(({ data, msg }) => {
